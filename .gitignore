@@ -3,6 +3,14 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+### --- Editors: Giga IDE & IntelliJ IDEA ---
+.gigaide
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
 
 ### Eclipse ###
 .apt_generated
