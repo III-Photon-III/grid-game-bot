@@ -1,5 +1,8 @@
 package game;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class Level {
 
     public static final char WALL = '#';
@@ -25,14 +28,27 @@ public final class Level {
         }
     }
 
+    public enum MoveOutcome {
+
+        STOPPED,
+        EXIT_REACHED,
+        DEFEATED
+    }
+
     private final char[][] cells;
     private final Position start;
     private final Position exit;
+    private final Map<Position, Item> items;
 
     public Level(char[][] cells, Position start, Position exit) {
+        this(cells, start, exit, null);
+    }
+
+    public Level(char[][] cells, Position start, Position exit, Map<Position, Item> items) {
         this.cells = cells;
         this.start = start;
         this.exit = exit;
+        this.items = items == null ? new HashMap<>() : new HashMap<>(items);
     }
 
     public int getHeight() {
@@ -68,18 +84,46 @@ public final class Level {
         return cells[position.getRow()][position.getCol()];
     }
 
-    public boolean movePlayer(Player player, Direction direction) {
+    public Item itemAt(Position position) {
+        return items.get(position);
+    }
+
+    public boolean isItem(Position position) {
+        return items.containsKey(position);
+    }
+
+    public Monster monsterAt(Position position) {
+        Item item = items.get(position);
+        return item instanceof Monster ? (Monster) item : null;
+    }
+
+    public boolean isMonster(Position position) {
+        return monsterAt(position) != null;
+    }
+
+    public MoveOutcome movePlayer(Player player, Direction direction) {
         while (true) {
             Position next = direction.next(player.getPosition());
 
             if (isWall(next)) {
-                return false;
+                return MoveOutcome.STOPPED;
+            }
+
+            Item item = items.get(next);
+            if (item != null) {
+                item.apply(player);
+                if (player.isDefeated()) {
+                    // Поражение: игрок остаётся на клетке предмета, предмет выживает.
+                    player.setPosition(next);
+                    return MoveOutcome.DEFEATED;
+                }
+                items.remove(next);
             }
 
             player.setPosition(next);
 
             if (isExit(next)) {
-                return true;
+                return MoveOutcome.EXIT_REACHED;
             }
         }
     }

@@ -144,9 +144,9 @@ public class LevelTest {
         Level level = Levels.parse(HORIZONTAL_CORRIDOR);
         Player player = new Player(level.getStart());
 
-        boolean reachedExit = level.movePlayer(player, Level.Direction.RIGHT);
+        Level.MoveOutcome outcome = level.movePlayer(player, Level.Direction.RIGHT);
 
-        assertFalse(reachedExit);
+        assertEquals(Level.MoveOutcome.STOPPED, outcome);
         assertEquals(new Position(1, 5), player.getPosition());
         assertFalse(level.isWall(player.getPosition()));
     }
@@ -156,9 +156,9 @@ public class LevelTest {
         Level level = Levels.parse(HORIZONTAL_CORRIDOR);
         Player player = new Player(level.getStart());
 
-        boolean reachedExit = level.movePlayer(player, Level.Direction.LEFT);
+        Level.MoveOutcome outcome = level.movePlayer(player, Level.Direction.LEFT);
 
-        assertFalse(reachedExit);
+        assertEquals(Level.MoveOutcome.STOPPED, outcome);
         assertEquals(new Position(1, 1), player.getPosition());
     }
 
@@ -167,10 +167,10 @@ public class LevelTest {
         Level level = Levels.parse(VERTICAL_CORRIDOR);
         Player player = new Player(level.getStart());
 
-        assertFalse(level.movePlayer(player, Level.Direction.UP));
+        assertEquals(Level.MoveOutcome.STOPPED, level.movePlayer(player, Level.Direction.UP));
         assertEquals(new Position(1, 2), player.getPosition());
 
-        assertFalse(level.movePlayer(player, Level.Direction.DOWN));
+        assertEquals(Level.MoveOutcome.STOPPED, level.movePlayer(player, Level.Direction.DOWN));
         assertEquals(new Position(5, 2), player.getPosition());
     }
 
@@ -179,9 +179,9 @@ public class LevelTest {
         Level level = Levels.parse(CORRIDOR_WITH_EXIT);
         Player player = new Player(level.getStart());
 
-        boolean reachedExit = level.movePlayer(player, Level.Direction.RIGHT);
+        Level.MoveOutcome outcome = level.movePlayer(player, Level.Direction.RIGHT);
 
-        assertTrue(reachedExit);
+        assertEquals(Level.MoveOutcome.EXIT_REACHED, outcome);
         assertEquals(new Position(1, 5), player.getPosition());
         assertTrue(level.isExit(player.getPosition()));
     }
@@ -191,10 +191,10 @@ public class LevelTest {
         Level level = Levels.parse("P....");
         Player player = new Player(level.getStart());
 
-        assertFalse(level.movePlayer(player, Level.Direction.LEFT));
+        assertEquals(Level.MoveOutcome.STOPPED, level.movePlayer(player, Level.Direction.LEFT));
         assertEquals(new Position(0, 0), player.getPosition());
 
-        assertFalse(level.movePlayer(player, Level.Direction.RIGHT));
+        assertEquals(Level.MoveOutcome.STOPPED, level.movePlayer(player, Level.Direction.RIGHT));
         assertEquals(new Position(0, 4), player.getPosition());
     }
 
@@ -206,7 +206,7 @@ public class LevelTest {
         level.movePlayer(player, Level.Direction.RIGHT);
         Position afterFirstMove = player.getPosition();
 
-        assertFalse(level.movePlayer(player, Level.Direction.DOWN));
+        assertEquals(Level.MoveOutcome.STOPPED, level.movePlayer(player, Level.Direction.DOWN));
         assertEquals(afterFirstMove, player.getPosition());
     }
 }

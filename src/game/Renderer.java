@@ -11,31 +11,62 @@ public final class Renderer {
         line("=================================");
         line("Скользите по клеткам до ближайшего");
         line("препятствия и находите выход X.");
+        line("Монстры M отнимают здоровье,");
+        line("зелья + лечат (не выше максимума).");
+        line("При нуле здоровья — поражение.");
         line("");
         line("Управление:");
         line("  W — вверх, S — вниз, A — влево, D — вправо");
         line("  Q — выйти из игры");
+        line("  /help — справка по командам");
         line("");
         line("Обозначения карты:");
         line("  # — стена");
         line("  . — свободная клетка");
         line("  P — игрок");
         line("  X — выход");
+        line("  M — монстр");
+        line("  + — зелье");
         line("=================================");
+    }
+
+    public void printHelp() {
+        clearScreen();
+        line("=================================");
+        line("     СПРАВКА И КОМАНДЫ");
+        line("=================================");
+        line("Управление: W вверх, S вниз,");
+        line("A влево, D вправо, Q выход.");
+        line("");
+        line("Команды:");
+        line("  /help — эта справка");
+        line("  /restart — новый забег с нуля:");
+        line("    здоровье и прогресс сбрасываются,");
+        line("    обучающие уровни начинаются заново");
+        line("  /seed N — новый забег с сидом N");
+        line("    (детерминированные лабиринты)");
+        line("  /quit — выйти из игры");
+        line("");
+        line("Правила:");
+        line("  Скользите до стены или выхода X.");
+        line("  M — минус здоровье (монстр исчезает),");
+        line("  + — плюс здоровье (не выше максимума).");
+        line("  При 0 здоровья — поражение.");
+        line("=================================");
+        line("Нажмите Enter, чтобы вернуться в игру...");
     }
 
     public void render(Level level, Player player, String statusMessage) {
         clearScreen();
         line("Уровень: " + player.getCurrentLevelNumber());
         line("Пройдено уровней: " + player.getLevelsCompleted());
+        line("Здоровье: " + player.getHealth() + " / " + player.getMaxHealth());
+        line("");
         line("");
         printGrid(level, player);
         line("");
-        line("W — вверх");
-        line("A — влево");
-        line("S — вниз");
-        line("D — вправо");
-        line("Q — выйти");
+        line("W/A/S/D — движение, Q — выход, /help — команды");
+        line("");
         if (statusMessage != null && !statusMessage.isEmpty()) {
             line("");
             line(statusMessage);
@@ -50,6 +81,18 @@ public final class Renderer {
         line("Пройдено уровней: " + player.getLevelsCompleted());
     }
 
+    public void printDefeat(Player player) {
+        clearScreen();
+        line("=================================");
+        line("         ВЫ ПОГИБЛИ");
+        line("=================================");
+        line("Вас убил монстр. Здоровье: "
+                + Math.max(0, player.getHealth()) + " / " + player.getMaxHealth());
+        line("Пройдено уровней: " + player.getLevelsCompleted());
+        line("");
+        line("/restart — сыграть ещё раз, Enter — выйти");
+    }
+
     private void printGrid(Level level, Player player) {
         Position playerPosition = player.getPosition();
         for (int row = 0; row < level.getHeight(); row++) {
@@ -60,6 +103,8 @@ public final class Renderer {
                     rowLine.append('P');
                 } else if (level.isExit(position)) {
                     rowLine.append('X');
+                } else if (level.isItem(position)) {
+                    rowLine.append(level.itemAt(position).getSymbol());
                 } else {
                     rowLine.append(level.cellAt(position));
                 }
