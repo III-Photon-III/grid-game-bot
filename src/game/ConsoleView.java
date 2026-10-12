@@ -1,9 +1,10 @@
 package game;
 
-public final class Renderer {
+public final class ConsoleView implements GameView {
     private static final String CLEAR_SCREEN = "\033[2J\033[H";
     private static final int DEFAULT_WIDTH = 80;
 
+    @Override
     public void printBanner() {
         clearScreen();
         line("=================================");
@@ -30,6 +31,7 @@ public final class Renderer {
         line("=================================");
     }
 
+    @Override
     public void printHelp() {
         clearScreen();
         line("=================================");
@@ -56,6 +58,7 @@ public final class Renderer {
         line("Нажмите Enter, чтобы вернуться в игру...");
     }
 
+    @Override
     public void render(Level level, Player player, String statusMessage) {
         clearScreen();
         line("Уровень: " + player.getCurrentLevelNumber());
@@ -73,6 +76,7 @@ public final class Renderer {
         }
     }
 
+    @Override
     public void printExit(Player player) {
         clearScreen();
         line("=================================");
@@ -81,6 +85,7 @@ public final class Renderer {
         line("Пройдено уровней: " + player.getLevelsCompleted());
     }
 
+    @Override
     public void printDefeat(Player player) {
         clearScreen();
         line("=================================");
@@ -92,6 +97,47 @@ public final class Renderer {
         line("");
         line("/restart — сыграть ещё раз, Enter — выйти");
     }
+
+    @Override
+    public String getInvalidCommandMessage() {
+        return "Недопустимая команда. Введите W, A, S, D, Q или /help.";
+    }
+
+    @Override
+    public String getUnknownCommandMessage(String command) {
+        return "Неизвестная команда: " + command + ". Введите /help.";
+    }
+
+    @Override
+    public String getRestartMessage() {
+        return "Новый забег: здоровье восстановлено, прогресс сброшен.";
+    }
+
+    @Override
+    public String getSeedMessage(long seed) {
+        return "Новый забег с сидом " + seed + ".";
+    }
+
+    @Override
+    public String getInvalidSeedMessage() {
+        return "Использование: /seed <целое число>";
+    }
+
+    @Override
+    public String getHealMessage(int health, int maxHealth) {
+        return "Зелье! Здоровье: " + health + " / " + maxHealth + ".";
+    }
+
+    @Override
+    public String getDamageMessage(int health, int maxHealth) {
+        return "Монстр нанёс урон! Здоровье: " + health + " / " + maxHealth + ".";
+    }
+
+    @Override
+    public String getLevelCompleteMessage(int levelsCompleted) {
+        return "Лабиринт пройден! Пройдено уровней: " + levelsCompleted + ". Загружаю следующий...";
+    }
+
 
     private void printGrid(Level level, Player player) {
         Position playerPosition = player.getPosition();
