@@ -1,7 +1,6 @@
 package game;
 
 import java.util.Locale;
-import java.util.Scanner;
 
 public final class GameController {
 
@@ -9,7 +8,6 @@ public final class GameController {
 
     private final Game game;
     private final GameView view;
-    private final Scanner scanner;
 
     private State state = State.RUNNING;
     private String statusMessage;
@@ -17,7 +15,6 @@ public final class GameController {
     public GameController(Game game, GameView view) {
         this.game = game;
         this.view = view;
-        this.scanner = new Scanner(System.in);
     }
 
     public int run() {
@@ -43,8 +40,11 @@ public final class GameController {
     }
 
     private boolean offerRestart() {
-        String line = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
-        if (line.equalsIgnoreCase("/restart")) {
+        String line = view.readLine();
+        if (line == null) {
+            return false;
+        }
+        if (line.trim().equalsIgnoreCase("/restart")) {
             game.restart();
             statusMessage = view.getRestartMessage();
             state = State.RUNNING;
@@ -54,7 +54,12 @@ public final class GameController {
     }
 
     private void readCommand() {
-        String line = scanner.hasNextLine() ? scanner.nextLine().trim() : "Q";
+        String line = view.readLine();
+        if (line == null) {
+            state = State.QUIT;
+            return;
+        }
+        line = line.trim();
         if (line.isEmpty()) {
             statusMessage = view.getInvalidCommandMessage();
             return;
@@ -118,7 +123,7 @@ public final class GameController {
             case "/help":
             case "/?":
                 view.printHelp();
-                if (scanner.hasNextLine()) scanner.nextLine();
+                view.readLine();
                 statusMessage = null;
                 break;
             case "/restart":

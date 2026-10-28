@@ -1,8 +1,12 @@
 package game;
 
+import java.io.IOException;
+import java.util.Scanner;
+
 public final class ConsoleView implements GameView {
     private static final String CLEAR_SCREEN = "\033[2J\033[H";
     private static final int DEFAULT_WIDTH = 80;
+    private final Scanner scanner = new Scanner(System.in);
 
     @Override
     public void printBanner() {
@@ -53,11 +57,10 @@ public final class ConsoleView implements GameView {
         line("  Скользите до стены или выхода X.");
         line("  M — минус здоровье (монстр исчезает),");
         line("  + — плюс здоровье (не выше максимума).");
-        line("  При 0 здоровья — поражение.");
+        line("  При нуле здоровья — поражение.");
         line("=================================");
         line("Нажмите Enter, чтобы вернуться в игру...");
     }
-
     @Override
     public void render(Level level, Player player, String statusMessage) {
         clearScreen();
@@ -96,6 +99,11 @@ public final class ConsoleView implements GameView {
         line("Пройдено уровней: " + player.getLevelsCompleted());
         line("");
         line("/restart — сыграть ещё раз, Enter — выйти");
+    }
+
+    @Override
+    public String readLine() {
+        return scanner.hasNextLine() ? scanner.nextLine() : null;
     }
 
     @Override
@@ -138,7 +146,6 @@ public final class ConsoleView implements GameView {
         return "Лабиринт пройден! Пройдено уровней: " + levelsCompleted + ". Загружаю следующий...";
     }
 
-
     private void printGrid(Level level, Player player) {
         Position playerPosition = player.getPosition();
         for (int row = 0; row < level.getHeight(); row++) {
@@ -160,8 +167,30 @@ public final class ConsoleView implements GameView {
     }
 
     private void clearScreen() {
-        System.out.print(CLEAR_SCREEN);
-        System.out.flush();
+        if (isWindows()) {
+            runCls();
+        } else {
+            System.out.print(CLEAR_SCREEN);
+            System.out.flush();
+        }
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
+    }
+
+    private static void runCls() {
+        try {
+            new ProcessBuilder("cmd", "/c", "cls")
+                    .inheritIO()
+                    .start()
+                    .waitFor();
+        } catch (IOException | InterruptedException ignored) {
+            // Fallback: push old content out of view with newlines
+            System.out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            System.out.flush();
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void line(String text) {
@@ -191,3 +220,4 @@ public final class ConsoleView implements GameView {
         return DEFAULT_WIDTH;
     }
 }
+

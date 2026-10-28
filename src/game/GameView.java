@@ -7,6 +7,9 @@ public interface GameView {
     void printExit(Player player);
     void printDefeat(Player player);
 
+    /** Returns the next input line, or null if input is closed (EOF). */
+    String readLine();
+
     String getInvalidCommandMessage();
     String getUnknownCommandMessage(String command);
     String getRestartMessage();
