@@ -150,10 +150,17 @@ public final class Levels {
         if (trainingIndex < training.size()) {
             return parse(training.get(trainingIndex++));
         }
-        int index = pickIndex();
-        lastIndex = index;
-        return parse(templates.get(index));
+        return LevelGenerator.generate(11, 9, random.nextLong());
     }
+
+    // public Level next() {
+    //     if (trainingIndex < training.size()) {
+    //         return parse(training.get(trainingIndex++));
+    //     }
+    //     int index = pickIndex();
+    //     lastIndex = index;
+    //     return parse(templates.get(index));
+    // }
 
     private int pickIndex() {
         if (templates.size() == 1) {

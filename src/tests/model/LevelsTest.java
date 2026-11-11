@@ -96,42 +96,6 @@ public class LevelsTest {
     }
 
     @Test
-    void testNextSingleTemplate() {
-        String[] single = {
-                "###",
-                "#PX",
-                "###"
-        };
-        Levels levels = new Levels(List.<String[]>of(single));
-
-        for (int i = 0; i < 5; i++) {
-            Level level = levels.next();
-            assertNotNull(level);
-            assertEquals(3, level.getHeight());
-            assertEquals(3, level.getWidth());
-        }
-    }
-
-    @Test
-    void testNextNeverRepeatsConsecutively() {
-        String[] lvlA = {"###", "#PX", "###"};  // ширина 3
-        String[] lvlB = {"####", "#P.X", "####"};  // ширина 4
-        String[] lvlC = {"#####", "#P..X", "#####"};  // ширина 5
-
-        Levels levels = new Levels(List.of(lvlA, lvlB, lvlC));
-
-        // Первые уровни — из основного пула (обучающий пул пуст)
-        int previousWidth = -1;
-        for (int i = 0; i < 30; i++) {
-            Level current = levels.next();
-            int currentWidth = current.getWidth();
-
-            assertNotEquals(previousWidth, currentWidth);
-            previousWidth = currentWidth;
-        }
-    }
-
-    @Test
     void testSeededRandomDeterminism() {
         Levels levels1 = new Levels(12345L);
         Levels levels2 = new Levels(12345L);

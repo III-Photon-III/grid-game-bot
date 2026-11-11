@@ -1,7 +1,12 @@
 package service;
 
-
-import model.*;
+import model.Player;
+import model.Item;
+import model.Potion;
+import model.Position;
+import model.Monster;
+import model.Level;
+import model.Levels;
 
 public final class BalanceAnalyzer {
 
