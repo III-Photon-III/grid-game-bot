@@ -37,6 +37,11 @@ public final class VkLongPollHandler {
             JsonNode failed = payload.get("failed");
             if (failed != null && !failed.isNull()) {
                 int failedCode = failed.asInt();
+
+                if (failedCode == 1) {
+                    ts = payload.path("ts").asText(ts);
+                    continue;
+                }
                 if (failedCode == 4) {
                     Integer min = VkClient.versionInt(payload, "min_version");
                     Integer max = VkClient.versionInt(payload, "max_version");
