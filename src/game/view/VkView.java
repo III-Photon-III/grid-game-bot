@@ -1,4 +1,7 @@
-﻿package game;
+package view;
+import exceptions.VkApiException;
+import model.*;
+import vk.VkApi;
 
 import java.util.concurrent.BlockingQueue;
 

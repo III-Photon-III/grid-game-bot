@@ -1,11 +1,5 @@
-package tests;
+package model;
 
-import game.Level;
-import game.Levels;
-import game.Monster;
-import game.Player;
-import game.Potion;
-import game.Position;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -139,7 +133,7 @@ public class MonsterTest {
                 {'#', '#', '#', '#', '#'},
         };
         Level level = new Level(cells, new Position(1, 1), null,
-                Map.of(new Position(1, 2), (game.Item) new Monster(3)));
+                Map.of(new Position(1, 2), (Item) new Monster(3)));
         Player player = new Player(level.getStart(), 2);
 
         Level.MoveOutcome outcome = level.movePlayer(player, Level.Direction.RIGHT);

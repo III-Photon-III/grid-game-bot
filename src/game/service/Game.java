@@ -1,4 +1,5 @@
-package game;
+package service;
+import model.*;
 
 public final class Game {
 

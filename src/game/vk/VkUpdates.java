@@ -1,4 +1,4 @@
-package game;
+package vk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

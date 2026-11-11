@@ -1,8 +1,7 @@
-package tests;
+package service;
 
-import game.BalanceAnalyzer;
-import game.Level;
-import game.Levels;
+import model.Level;
+import model.Levels;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

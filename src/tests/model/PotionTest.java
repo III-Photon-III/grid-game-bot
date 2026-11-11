@@ -1,10 +1,5 @@
-package tests;
+package model;
 
-import game.Level;
-import game.Levels;
-import game.Player;
-import game.Potion;
-import game.Position;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

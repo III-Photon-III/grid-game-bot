@@ -1,4 +1,4 @@
-package game;
+package exceptions;
 
 public final class VkApiException extends RuntimeException {
 

@@ -1,5 +1,7 @@
-package game;
+package service;
 
+
+import model.*;
 
 public final class BalanceAnalyzer {
 

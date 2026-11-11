@@ -1,4 +1,4 @@
-package game;
+package model;
 
 public final class Monster implements Item {
 

@@ -1,11 +1,10 @@
-package tests;
+package vk;
 
-import game.Game;
-import game.GameController;
-import game.Levels;
-import game.Player;
-import game.VkApi;
-import game.VkView;
+import service.Game;
+import service.GameController;
+import model.Levels;
+import model.Player;
+import view.VkView;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

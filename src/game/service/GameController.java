@@ -1,4 +1,6 @@
-package game;
+package service;
+import view.*;
+import model.*;
 
 import java.util.Locale;
 

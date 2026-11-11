@@ -1,4 +1,5 @@
-package game;
+package view;
+import model.*;
 
 public interface GameView {
     void printBanner();
