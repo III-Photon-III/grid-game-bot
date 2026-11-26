@@ -1,0 +1,13 @@
+meta:
+  environment: jvm
+  toolchain:
+    name: gradle
+    version: 17
+
+build:
+  artifacts:
+    "build/libs/*.jar": /
+
+run:
+  jarName: app-1.0.0-vk.jar
+  containerPort: 8080

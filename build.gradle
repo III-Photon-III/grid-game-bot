@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'com.gradleup.shadow' version '9.6.1'
     id 'jacoco'
 }
 
@@ -62,14 +61,19 @@ tasks.register('vkJar', Jar) {
     manifest {
         attributes 'Main-Class': 'game.VkBotMain'
     }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/versions/9/module-info.class'
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+// Чтобы `gradle build` автоматически собирал толстый JAR VK бота (задача vkJar)
+tasks.named('build') {
+    dependsOn(vkJar)
 }
