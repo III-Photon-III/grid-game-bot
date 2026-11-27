@@ -39,7 +39,7 @@ public final class VkView implements GameView {
 
     @Override
     public void printBanner() {
-        send("ИГРА «ЛАБИРИНТ»\n\n"
+        String text = "ИГРА «ЛАБИРИНТ»\n\n"
                 + "Скользите по клеткам до ближайшего препятствия и находите выход 🟩.\n"
                 + "Монстры 🟪 отнимают здоровье, зелья 🟨 лечат (не выше максимума).\n"
                 + "При нуле здоровья — поражение.\n\n"
@@ -49,7 +49,19 @@ public final class VkView implements GameView {
                 + "Обозначения карты:\n"
                 + "  ⬛ — стена, ⬜ — свободная клетка, 🟦 — игрок, 🟩 — выход\n"
                 + "  🟪 — монстр, 🟨 — зелье\n\n"
-                + "Отправьте любое сообщение, чтобы начать…");
+                + "Нажмите кнопку ниже, чтобы начать…";
+        send(text, startKeyboard());
+    }
+
+    private String startKeyboard() {
+        return """
+                {
+                  "inline": true,
+                  "buttons": [
+                    [{"action": {"type": "text", "payload": "{\\\"cmd\\\":\\\"start\\\"}", "label": "Начать игру"}, "color": "primary"}]
+                  ]
+                }
+                """;
     }
 
     @Override
@@ -84,23 +96,25 @@ public final class VkView implements GameView {
         if (statusMessage != null && !statusMessage.isEmpty()) {
             text.append("\n\n").append(statusMessage);
         }
-        send(text.toString());
+        send(text.toString(), directionKeyboard());
     }
 
     @Override
     public void printExit(Player player) {
-        send("ВЫ ВЫШЛИ ИЗ ИГРЫ\n"
+        String text = "ВЫ ВЫШЛИ ИЗ ИГРЫ\n"
                 + "Пройдено уровней: " + player.getLevelsCompleted()
-                + "\n\nОтправьте любое сообщение, чтобы сыграть снова…");
+                + "\n\n";
+        send(text, endGameKeyboard());
     }
 
     @Override
     public void printDefeat(Player player) {
-        send("ВЫ ПОГИБЛИ\n"
+        String text = "ВЫ ПОГИБЛИ\n"
                 + "Вас убил монстр. Здоровье: "
                 + Math.max(0, player.getHealth()) + " / " + player.getMaxHealth()
                 + "\nПройдено уровней: " + player.getLevelsCompleted()
-                + "\n\n/restart — сыграть ещё раз, /quit — выйти");
+                + "\n\n/restart — сыграть ещё раз, /quit — выйти";
+        send(text, endGameKeyboard());
     }
 
     @Override
@@ -181,9 +195,17 @@ public final class VkView implements GameView {
     }
 
     private void send(String text) {
+        send(text, null);
+    }
+
+    private void send(String text, String keyboard) {
         System.out.println("DEBUG send to peer " + peerId + ": " + text.substring(0, Math.min(text.length(), 80)));
         try {
-            api.sendMessage(peerId, text);
+            if (keyboard != null) {
+                api.sendMessageWithKeyboard(peerId, text, keyboard);
+            } else {
+                api.sendMessage(peerId, text);
+            }
         } catch (RuntimeException e) {
             String detail = e.getMessage();
             if (e instanceof VkApiException apiErr) {
@@ -191,5 +213,34 @@ public final class VkView implements GameView {
             }
             System.err.println("Failed to send VK message to peer " + peerId + ": " + detail);
         }
+    }
+
+    private String directionKeyboard() {
+        return """
+                {
+                  "inline": true,
+                  "buttons": [
+                    [{"action": {"type": "text", "payload": "{\\\"cmd\\\":\\\"w\\\"}", "label": "\u2B06 ВВЕРХ"}, "color": "primary"}],
+                    [
+                      {"action": {"type": "text", "payload": "{\\\"cmd\\\":\\\"a\\\"}", "label": "\u2B05 ВЛЕВО"}, "color": "secondary"},
+                      {"action": {"type": "text", "payload": "{\\\"cmd\\\":\\\"d\\\"}", "label": "ВПРАВО \u27A1"}, "color": "secondary"}
+                    ],
+                    [{"action": {"type": "text", "payload": "{\\\"cmd\\\":\\\"s\\\"}", "label": "\u2B07 ВНИЗ"}, "color": "primary"}],
+                    [{"action": {"type": "text", "payload": "{\\\"cmd\\\":\\\"q\\\"}", "label": "Выход"}, "color": "negative"}]
+                  ]
+                }
+                """;
+    }
+
+    private String endGameKeyboard() {
+        return """
+                {
+                  "inline": true,
+                  "buttons": [
+                    [{"action": {"type": "text", "payload": "{\\\"cmd\\\":\\\"restart\\\"}", "label": "Сыграть снова"}, "color": "primary"}],
+                    [{"action": {"type": "text", "payload": "{\"cmd\":\"quit\"}", "label": "Выйти"}, "color": "negative"}]
+                  ]
+                }
+                """;
     }
 }

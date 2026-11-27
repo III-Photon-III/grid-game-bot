@@ -166,6 +166,19 @@ public class VkClient implements VkApi {
         call("messages.send", params);
     }
 
+    @Override
+    public void sendMessageWithKeyboard(long peerId, String text, String keyboard) {
+        System.out.println("DEBUG VkClient.sendMessageWithKeyboard to peer " + peerId);
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("peer_id", Long.toString(peerId));
+        params.put("message", text);
+        // random_id makes the request idempotent: VK deduplicates retries.
+        // Must be truly random (not sequential) to avoid deduplication across bot restarts.
+        params.put("random_id", Long.toString(ThreadLocalRandom.current().nextLong()));
+        params.put("keyboard", keyboard);
+        call("messages.send", params);
+    }
+
     /**
      * Marks the incoming messages of the peer as read.
      * Failures are not fatal: the bot must keep working without the badge.

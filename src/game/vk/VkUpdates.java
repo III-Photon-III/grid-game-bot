@@ -1,6 +1,7 @@
 package vk;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Parses the Long Poll update payloads of the VK Bots Long Poll API.
@@ -16,6 +17,7 @@ public final class VkUpdates {
 
     /** Numeric event code of the legacy layout. */
     private static final int LEGACY_CODE_MESSAGE_NEW = 4;
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private VkUpdates() {
     }
@@ -53,10 +55,27 @@ public final class VkUpdates {
         }
         JsonNode message = object.path("message");
         if (message.isObject()) {
+            // При нажатии inline-кнопки VK присылает payload вместо обычного текста.
+            // Сначала проверяем payload, иначе вернётся метка кнопки (например, "⬆️ ВВЕРХ").
+            String payload = readPayload(message);
             String text = message.path("text").asText(null);
-            if (text != null) {
+
+            if (payload != null && !payload.isEmpty()) {
+                String cmd = extractCmd(payload);
+                if (cmd != null && !cmd.isEmpty()) {
+                    return cmd;
+                }
+            }
+
+            // Если в text пришёл JSON вида {"cmd":"w"} — парсим его напрямую.
+            if (text != null && !text.isEmpty() && text.startsWith("{\"cmd\":\"")) {
+                return extractCmd(text);
+            }
+
+            if (text != null && !text.isEmpty()) {
                 return text;
             }
+            return object.path("text").asText(null);
         }
         return object.path("text").asText(null);
     }
@@ -99,6 +118,50 @@ public final class VkUpdates {
             }
         }
         return object.path("from_id").asLong(0);
+    }
+
+    /**
+     * Extracts the command from a button payload like {@code {"cmd":"w"}}.
+     * Returns {@code "/restart"} / {@code "/quit"} for game commands so the
+     * controller recognizes them.
+     */
+    private static String extractCmd(String payload) {
+        if (payload == null) {
+            return null;
+        }
+        String trimmed = payload.trim();
+        if (trimmed.startsWith("{")) {
+            try {
+                JsonNode node = MAPPER.readTree(trimmed);
+                JsonNode cmdNode = node.get("cmd");
+                if (cmdNode != null && cmdNode.isTextual()) {
+                    String cmd = cmdNode.asText();
+                    return switch (cmd) {
+                        case "restart" -> "/restart";
+                        case "quit" -> "/quit";
+                        default -> cmd;
+                    };
+                }
+            } catch (Exception ignored) {
+                // Если пришёл невалидный JSON, вернём исходный текст
+            }
+        }
+        return payload;
+    }
+
+    /**
+     * Читает поле {@code payload} из объекта сообщения VK.
+     * Пробуем через get() и path(), т.к. Jackson иногда ведёт себя иначе.
+     */
+    private static String readPayload(JsonNode message) {
+        JsonNode node = message.get("payload");
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            node = message.path("payload");
+        }
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            return null;
+        }
+        return node.isObject() ? node.toString() : node.asText(null);
     }
 
     /**

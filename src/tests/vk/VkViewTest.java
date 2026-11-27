@@ -26,11 +26,20 @@ public class VkViewTest {
 
         private final List<String> texts = new ArrayList<>();
         private final List<Long> peers = new ArrayList<>();
+        private final List<String> keyboards = new ArrayList<>();
 
         @Override
         public void sendMessage(long peerId, String text) {
             peers.add(peerId);
             texts.add(text);
+            keyboards.add(null);
+        }
+
+        @Override
+        public void sendMessageWithKeyboard(long peerId, String text, String keyboard) {
+            peers.add(peerId);
+            texts.add(text);
+            keyboards.add(keyboard);
         }
     }
 
