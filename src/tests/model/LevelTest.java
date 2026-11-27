@@ -116,11 +116,11 @@ public class LevelTest {
     void testCellAt() {
         Level level = Levels.parse(SIMPLE_MAZE);
 
-        assertEquals(Level.WALL, level.cellAt(new Position(0, 0)));
-        assertEquals(Level.WALL, level.cellAt(new Position(2, 2)));
-        assertEquals(Level.EMPTY, level.cellAt(new Position(1, 1)));
-        assertEquals(Level.EMPTY, level.cellAt(new Position(3, 5)));
-        assertEquals(Level.EMPTY, level.cellAt(new Position(2, 1)));
+        assertEquals(Level.Cell.WALL, level.cellAt(new Position(0, 0)));
+        assertEquals(Level.Cell.WALL, level.cellAt(new Position(2, 2)));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(1, 1)));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(3, 5)));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(2, 1)));
     }
 
     @Test
