@@ -1,6 +1,7 @@
 package game;
 
 import exceptions.VkApiException;
+import vk.BotConfig;
 import vk.SessionManager;
 import vk.VkClient;
 import vk.VkLongPollHandler;
@@ -16,25 +17,27 @@ public final class VkBotMain {
     public static void main(String[] args) {
         useUtf8Console();
 
-        String token = readEnv("VK_TOKEN", args, 0);
+        BotConfig config = BotConfig.load();
+
+        String token = config.get("VK_TOKEN", args, 0);
         if (token == null) {
-            System.err.println("Укажите токен сообщества: переменная окружения VK_TOKEN "
-                    + "или первый аргумент командной строки.");
+            System.err.println("Укажите токен сообщества: в файле .env (VK_TOKEN), "
+                    + "в переменной окружения VK_TOKEN или первым аргументом командной строки.");
             System.exit(1);
             return;
         }
 
-        String groupIdText = readEnv("VK_GROUP_ID", args, 1);
+        String groupIdText = config.get("VK_GROUP_ID", args, 1);
         if (groupIdText == null) {
-            System.err.println("Укажите id сообщества: переменная окружения VK_GROUP_ID "
-                    + "или второй аргумент командной строки.");
+            System.err.println("Укажите id сообщества: в файле .env (VK_GROUP_ID), "
+                    + "в переменной окружения VK_GROUP_ID или вторым аргументом командной строки.");
             System.exit(1);
             return;
         }
 
         long groupId;
         try {
-            groupId = Long.parseLong(groupIdText.trim());
+            groupId = Long.parseLong(groupIdText);
         } catch (NumberFormatException e) {
             System.err.println("Некорректный id сообщества: " + groupIdText);
             System.exit(1);
@@ -72,18 +75,6 @@ public final class VkBotMain {
             default:
                 return "Подробности: https://dev.vk.com/ru/reference";
         }
-    }
-
-    private static String readEnv(String name, String[] args, int argIndex) {
-        String value = System.getenv(name);
-        if (value != null && !value.isBlank()) {
-            return value.trim();
-        }
-        if (args != null && args.length > argIndex && args[argIndex] != null
-                && !args[argIndex].isBlank()) {
-            return args[argIndex].trim();
-        }
-        return null;
     }
 
     private static void useUtf8Console() {
