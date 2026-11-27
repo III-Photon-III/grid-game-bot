@@ -160,7 +160,7 @@ public final class ConsoleView implements GameView {
                 } else if (level.isItem(position)) {
                     rowLine.append(level.itemAt(position).getSymbol());
                 } else {
-                    rowLine.append(level.cellAt(position));
+                    rowLine.append(level.cellAt(position).code());
                 }
             }
             line(rowLine.toString());

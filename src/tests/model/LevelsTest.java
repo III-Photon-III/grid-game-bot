@@ -55,7 +55,7 @@ public class LevelsTest {
         assertTrue(level.isItem(new Position(1, 2)));
         assertFalse(level.isMonster(new Position(1, 2)));
         assertEquals('+', level.itemAt(new Position(1, 2)).getSymbol());
-        assertEquals(Level.EMPTY, level.cellAt(new Position(1, 2)));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(1, 2)));
         assertFalse(level.isWall(new Position(1, 2)));
     }
 
@@ -75,12 +75,12 @@ public class LevelsTest {
         assertEquals(4, level.getWidth());
 
         // Стены сохранились
-        assertEquals('#', level.cellAt(new Position(0, 0)));
-        assertEquals('#', level.cellAt(new Position(1, 3)));
+        assertEquals(Level.Cell.WALL, level.cellAt(new Position(0, 0)));
+        assertEquals(Level.Cell.WALL, level.cellAt(new Position(1, 3)));
 
-        // Символы P и X заменились на Level.EMPTY
-        assertEquals(Level.EMPTY, level.cellAt(new Position(1, 1)));
-        assertEquals(Level.EMPTY, level.cellAt(new Position(2, 2)));
+        // Символы P и X заменились на Level.Cell.EMPTY
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(1, 1)));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(2, 2)));
 
         // Выход определен верно
         assertTrue(level.isExit(new Position(2, 2)));
@@ -130,8 +130,8 @@ public class LevelsTest {
         assertTrue(level.isItem(new Position(1, 2)));
         assertTrue(level.isMonster(new Position(2, 1)));
         assertEquals(1, level.monsterAt(new Position(1, 2)).getDamage());
-        assertEquals(Level.EMPTY, level.cellAt(new Position(1, 2)));
-        assertEquals(Level.EMPTY, level.cellAt(new Position(2, 1)));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(1, 2)));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(new Position(2, 1)));
 
         assertFalse(level.isMonster(new Position(1, 1)));
         assertNull(level.monsterAt(new Position(1, 1)));

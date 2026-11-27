@@ -67,7 +67,7 @@ public class MonsterTest {
         assertEquals(1, level.monsterAt(monsterPosition).getDamage());
         assertEquals('M', level.itemAt(monsterPosition).getSymbol());
         assertFalse(level.isWall(monsterPosition));
-        assertEquals(Level.EMPTY, level.cellAt(monsterPosition));
+        assertEquals(Level.Cell.EMPTY, level.cellAt(monsterPosition));
     }
 
     @Test
