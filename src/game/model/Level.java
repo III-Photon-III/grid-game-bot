@@ -6,7 +6,7 @@ import java.util.Map;
 public final class Level {
 
     public static final char WALL = '#';
-    public static final char EMPTY = '.';
+    public static final char EMPTY = '.';   
 
     public enum Direction {
 

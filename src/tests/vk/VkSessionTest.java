@@ -19,8 +19,16 @@ class VkSessionTest {
         CountDownLatch finishedLatch = new CountDownLatch(1);
         AtomicBoolean callbackCalled = new AtomicBoolean(false);
 
-        VkApi dummyApi = (peerId, text) -> {
-            // заглушка отправки сообщений
+        VkApi dummyApi = new VkApi() {
+            @Override
+            public void sendMessage(long peerId, String text) {
+                // заглушка отправки сообщений
+            }
+
+            @Override
+            public void sendMessageWithKeyboard(long peerId, String text, String keyboard) {
+                // заглушка отправки сообщений с клавиатурой
+            }
         };
 
         VkSession session = new VkSession(12345L, dummyApi, s -> {

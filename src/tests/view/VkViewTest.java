@@ -1,13 +1,13 @@
-package vk;
+package view;
 
 import service.Game;
 import service.GameController;
 import model.Levels;
 import model.Player;
-import view.VkView;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import vk.VkApi;
 
 import java.util.ArrayList;
 import java.util.List;
