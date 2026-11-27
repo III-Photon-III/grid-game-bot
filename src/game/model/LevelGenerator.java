@@ -12,30 +12,30 @@ public final class LevelGenerator {
 
     private LevelGenerator() {}
 
-    public static Level generate(int width, int height, long seed) {
+        public static Level generate(int width, int height, long seed) {
         Random rnd = new Random(seed);
 
         while (true) {
-            char[][] cells = new char[height][width];
-            
+            Level.Cell[][] cells = new Level.Cell[height][width];
+
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
-                    cells[i][j] = Level.WALL;
+                    cells[i][j] = Level.Cell.WALL;
                 }
             }
 
             int numRooms = 4 + rnd.nextInt(5);
             for (int i = 0; i < numRooms; i++) {
-                int rw = 3 + rnd.nextInt(4); 
-                int rh = 3 + rnd.nextInt(4); 
-                
+                int rw = 3 + rnd.nextInt(4);
+                int rh = 3 + rnd.nextInt(4);
+
                 int rx = 1 + rnd.nextInt(Math.max(1, width - rw - 1));
                 int ry = 1 + rnd.nextInt(Math.max(1, height - rh - 1));
 
                 for (int r = ry; r < ry + rh; r++) {
                     for (int c = rx; c < rx + rw; c++) {
                         if (r < height - 1 && c < width - 1) {
-                            cells[r][c] = Level.EMPTY;
+                            cells[r][c] = Level.Cell.EMPTY;
                         }
                     }
                 }
@@ -45,13 +45,13 @@ public final class LevelGenerator {
             for (int i = 0; i < numPillars; i++) {
                 int pr = 2 + rnd.nextInt(Math.max(1, height - 4));
                 int pc = 2 + rnd.nextInt(Math.max(1, width - 4));
-                cells[pr][pc] = Level.WALL;
+                cells[pr][pc] = Level.Cell.WALL;
             }
 
             List<Position> emptySpots = new ArrayList<>();
             for (int r = 1; r < height - 1; r++) {
                 for (int c = 1; c < width - 1; c++) {
-                    if (cells[r][c] == Level.EMPTY) {
+                    if (cells[r][c] == Level.Cell.EMPTY) {
                         emptySpots.add(new Position(r, c));
                     }
                 }
@@ -60,17 +60,17 @@ public final class LevelGenerator {
             if (emptySpots.size() < 15) continue;
 
             Collections.shuffle(emptySpots, rnd);
-            
+
             Position start = emptySpots.get(0);
-            Position exit = emptySpots.get(emptySpots.size() - 1); 
+            Position exit = emptySpots.get(emptySpots.size() - 1);
 
             Level baseLevel = new Level(cells, start, exit, null);
             if (!BalanceAnalyzer.isSolvable(baseLevel, 999)) {
-                continue; 
+                continue;
             }
 
             Map<Position, Item> items = new HashMap<>();
-            int numMonsters = 1 + rnd.nextInt(4); 
+            int numMonsters = 1 + rnd.nextInt(4);
             int numPotions = 1 + rnd.nextInt(3);
 
             int spotIdx = 1;
@@ -82,9 +82,8 @@ public final class LevelGenerator {
             }
 
             Level finalLevel = new Level(cells, start, exit, items);
-            
+
             if (BalanceAnalyzer.isSolvable(finalLevel)) {
-                
                 return finalLevel;
             }
         }

@@ -1,18 +1,30 @@
 package view;
+
 import exceptions.VkApiException;
 import model.*;
 import vk.VkApi;
 
 import java.util.concurrent.BlockingQueue;
 
-
 public final class VkView implements GameView {
-    private static final String WALL = "⬛";
-    private static final String FLOOR = "⬜";
-    private static final String PLAYER = "🟦";
-    private static final String EXIT = "🟩";
-    private static final String MONSTER = "🟪";
-    private static final String POTION = "🟨";
+    private enum Tile {
+        WALL("⬛"),
+        FLOOR("⬜"),
+        PLAYER("🟦"),
+        EXIT("🟩"),
+        MONSTER("🟪"),
+        POTION("🟨");
+
+        private final String symbol;
+
+        Tile(String symbol) {
+            this.symbol = symbol;
+        }
+
+        String symbol() {
+            return symbol;
+        }
+    }
 
     private final long peerId;
     private final VkApi api;
@@ -36,19 +48,19 @@ public final class VkView implements GameView {
         }
     }
 
-
     @Override
     public void printBanner() {
         String text = "ИГРА «ЛАБИРИНТ»\n\n"
-                + "Скользите по клеткам до ближайшего препятствия и находите выход 🟩.\n"
-                + "Монстры 🟪 отнимают здоровье, зелья 🟨 лечат (не выше максимума).\n"
+                + "Скользите по клеткам до ближайшего препятствия и находите выход " + Tile.EXIT.symbol() + ".\n"
+                + "Монстры " + Tile.MONSTER.symbol() + " отнимают здоровье, зелья " + Tile.POTION.symbol() + " лечат (не выше максимума).\n"
                 + "При нуле здоровья — поражение.\n\n"
                 + "Управление:\n"
                 + "  W — вверх, S — вниз, A — влево, D — вправо, Q — выход\n"
                 + "  /help — справка по командам\n\n"
                 + "Обозначения карты:\n"
-                + "  ⬛ — стена, ⬜ — свободная клетка, 🟦 — игрок, 🟩 — выход\n"
-                + "  🟪 — монстр, 🟨 — зелье\n\n"
+                + "  " + Tile.WALL.symbol() + " — стена, " + Tile.FLOOR.symbol() + " — свободная клетка, "
+                + Tile.PLAYER.symbol() + " — игрок, " + Tile.EXIT.symbol() + " — выход\n"
+                + "  " + Tile.MONSTER.symbol() + " — монстр, " + Tile.POTION.symbol() + " — зелье\n\n"
                 + "Нажмите кнопку ниже, чтобы начать…";
         send(text, startKeyboard());
     }
@@ -77,9 +89,9 @@ public final class VkView implements GameView {
                 + "    (детерминированные лабиринты)\n"
                 + "  /quit — выйти из игры\n\n"
                 + "Правила:\n"
-                + "  Скользите до стены или выхода 🟩.\n"
-                + "  🟪 — минус здоровье (монстр исчезает),\n"
-                + "  🟨 — плюс здоровье (не выше максимума).\n"
+                + "  Скользите до стены или выхода " + Tile.EXIT.symbol() + ".\n"
+                + "  " + Tile.MONSTER.symbol() + " — минус здоровье (монстр исчезает),\n"
+                + "  " + Tile.POTION.symbol() + " — плюс здоровье (не выше максимума).\n"
                 + "  При 0 здоровья — поражение.\n\n"
                 + "Отправьте любое сообщение, чтобы вернуться в игру…");
     }
@@ -162,18 +174,7 @@ public final class VkView implements GameView {
         StringBuilder builder = new StringBuilder();
         for (int row = 0; row < level.getHeight(); row++) {
             for (int col = 0; col < level.getWidth(); col++) {
-                Position position = new Position(row, col);
-                if (position.equals(playerPosition)) {
-                    builder.append(PLAYER);
-                } else if (level.isExit(position)) {
-                    builder.append(EXIT);
-                } else if (level.isItem(position)) {
-                    builder.append(symbolOf(level.itemAt(position)));
-                } else if (level.cellAt(position) == Level.WALL) {
-                    builder.append(WALL);
-                } else {
-                    builder.append(FLOOR);
-                }
+                builder.append(tileAt(level, playerPosition, new Position(row, col)).symbol());
             }
             builder.append('\n');
         }
@@ -184,14 +185,30 @@ public final class VkView implements GameView {
         return builder.toString();
     }
 
-    private String symbolOf(Item item) {
+    private Tile tileAt(Level level, Position playerPosition, Position position) {
+        if (position.equals(playerPosition)) {
+            return Tile.PLAYER;
+        }
+        if (level.isExit(position)) {
+            return Tile.EXIT;
+        }
+        if (level.isItem(position)) {
+            return tileOf(level.itemAt(position));
+        }
+        if (level.cellAt(position) == Level.Cell.WALL) {
+            return Tile.WALL;
+        }
+        return Tile.FLOOR;
+    }
+
+    private Tile tileOf(Item item) {
         if (item instanceof Monster) {
-            return MONSTER;
+            return Tile.MONSTER;
         }
         if (item instanceof Potion) {
-            return POTION;
+            return Tile.POTION;
         }
-        return FLOOR;
+        return Tile.FLOOR;
     }
 
     private void send(String text) {
@@ -199,7 +216,8 @@ public final class VkView implements GameView {
     }
 
     private void send(String text, String keyboard) {
-        System.out.println("DEBUG send to peer " + peerId + ": " + text.substring(0, Math.min(text.length(), 80)));
+        System.out.println("DEBUG send to peer " + peerId + ": "
+                + text.substring(0, Math.min(text.length(), 80)));
         try {
             if (keyboard != null) {
                 api.sendMessageWithKeyboard(peerId, text, keyboard);

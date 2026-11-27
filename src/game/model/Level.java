@@ -5,15 +5,33 @@ import java.util.Map;
 
 public final class Level {
 
-    public static final char WALL = '#';
-    public static final char EMPTY = '.';   
+    /** Модель клетки лабиринта. */
+    public enum Cell {
+        WALL('#'),
+        EMPTY('.');
+
+        private final char code;
+
+        Cell(char code) {
+            this.code = code;
+        }
+
+        public char code() {
+            return code;
+        }
+
+        public static Cell fromCode(char code) {
+            for (Cell cell : values()) {
+                if (cell.code == code) {
+                    return cell;
+                }
+            }
+            throw new IllegalArgumentException("Unknown cell code: " + code);
+        }
+    }
 
     public enum Direction {
-
-        UP(-1, 0),
-        DOWN(1, 0),
-        LEFT(0, -1),
-        RIGHT(0, 1);
+        UP(-1, 0), DOWN(1, 0), LEFT(0, -1), RIGHT(0, 1);
 
         private final int deltaRow;
         private final int deltaCol;
@@ -29,26 +47,42 @@ public final class Level {
     }
 
     public enum MoveOutcome {
-
-        STOPPED,
-        EXIT_REACHED,
-        DEFEATED
+        STOPPED, EXIT_REACHED, DEFEATED
     }
 
-    private final char[][] cells;
+    private final Cell[][] cells;
     private final Position start;
     private final Position exit;
     private final Map<Position, Item> items;
+
+    // ---- Backward-compatible конструкторы для парсеров уровней ----
 
     public Level(char[][] cells, Position start, Position exit) {
         this(cells, start, exit, null);
     }
 
     public Level(char[][] cells, Position start, Position exit, Map<Position, Item> items) {
+        this(toCells(cells), start, exit, items);
+    }
+
+    // ---- Канонический конструктор ----
+
+    public Level(Cell[][] cells, Position start, Position exit, Map<Position, Item> items) {
         this.cells = cells;
         this.start = start;
         this.exit = exit;
         this.items = items == null ? new HashMap<>() : new HashMap<>(items);
+    }
+
+    private static Cell[][] toCells(char[][] raw) {
+        Cell[][] result = new Cell[raw.length][];
+        for (int row = 0; row < raw.length; row++) {
+            result[row] = new Cell[raw[row].length];
+            for (int col = 0; col < raw[row].length; col++) {
+                result[row][col] = Cell.fromCode(raw[row][col]);
+            }
+        }
+        return result;
     }
 
     public int getHeight() {
@@ -73,14 +107,14 @@ public final class Level {
     }
 
     public boolean isWall(Position position) {
-        return !isInside(position) || cells[position.getRow()][position.getCol()] == WALL;
+        return !isInside(position) || cells[position.getRow()][position.getCol()] == Cell.WALL;
     }
 
     public boolean isExit(Position position) {
         return exit != null && exit.equals(position);
     }
 
-    public char cellAt(Position position) {
+    public Cell cellAt(Position position) {
         return cells[position.getRow()][position.getCol()];
     }
 
@@ -93,8 +127,7 @@ public final class Level {
     }
 
     public Monster monsterAt(Position position) {
-        Item item = items.get(position);
-        return item instanceof Monster ? (Monster) item : null;
+        return items.get(position) instanceof Monster monster ? monster : null;
     }
 
     public boolean isMonster(Position position) {
@@ -113,7 +146,6 @@ public final class Level {
             if (item != null) {
                 item.apply(player);
                 if (player.isDefeated()) {
-                    // Поражение: игрок остаётся на клетке предмета, предмет выживает.
                     player.setPosition(next);
                     return MoveOutcome.DEFEATED;
                 }
