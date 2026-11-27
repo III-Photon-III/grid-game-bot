@@ -173,10 +173,10 @@ public final class Levels {
         return index;
     }
 
-    public static Level parse(String... rows) {
+        public static Level parse(String... rows) {
         int height = rows.length;
         int width = height > 0 ? rows[0].length() : 0;
-        char[][] cells = new char[height][width];
+        Level.Cell[][] cells = new Level.Cell[height][width];
         Position start = null;
         Position exit = null;
         Map<Position, Item> items = new HashMap<>();
@@ -186,18 +186,18 @@ public final class Levels {
                 char symbol = rows[row].charAt(col);
                 if (symbol == 'P') {
                     start = new Position(row, col);
-                    cells[row][col] = Level.EMPTY;
+                    cells[row][col] = Level.Cell.EMPTY;
                 } else if (symbol == 'X') {
                     exit = new Position(row, col);
-                    cells[row][col] = Level.EMPTY;
+                    cells[row][col] = Level.Cell.EMPTY;
                 } else if (symbol == 'M') {
                     items.put(new Position(row, col), new Monster());
-                    cells[row][col] = Level.EMPTY;
+                    cells[row][col] = Level.Cell.EMPTY;
                 } else if (symbol == '+') {
                     items.put(new Position(row, col), new Potion());
-                    cells[row][col] = Level.EMPTY;
+                    cells[row][col] = Level.Cell.EMPTY;
                 } else {
-                    cells[row][col] = symbol;
+                    cells[row][col] = Level.Cell.fromCode(symbol);
                 }
             }
         }
